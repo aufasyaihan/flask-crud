@@ -41,7 +41,7 @@ Follow these steps to set up the project in a virtual environment using `.venv`.
 
 4. **Install the required packages:**
   ```sh
-  pip install flask psycopg2
+  pip install -r requirements.txt
   ```
 
 5. **Run the application:**

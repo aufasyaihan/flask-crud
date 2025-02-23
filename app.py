@@ -21,40 +21,43 @@ def get_db_connection():
         port=DB_PORT
     )
 
-# GET - ALL USERS
-@app.route("/users", methods=["GET"])
-def get_users():
+# GET - ALL krs
+@app.route("/krs", methods=["GET"])
+def get_krs():
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM users")
-    users = cur.fetchall()
+    cur.execute('SELECT id_krs, nim, "kode matakuliah", matakuliah, semester, tahunakademik FROM krs ORDER BY id_krs ASC')
+    krs = cur.fetchall()
     cur.close()
     conn.close()
-    return jsonify([{"id": u[0], "name": u[1], "email": u[2]} for u in users])
+    return jsonify([{"id_krs": u[0], "nim": u[1], "kode matakuliah": u[2], "matakuliah" : u[3], "semester" : u[4], "tahunakademik" : u[5]} for u in krs])
 
 # POST - ADD USER
-@app.route("/users", methods=["POST"])
+@app.route("/krs", methods=["POST"])
 def add_user():
     data = request.get_json()
-    name = data.get("name")
-    email = data.get("email")
+    nim = data.get("nim")
+    kode_matakuliah = data.get("kode matakuliah")
+    matakuliah = data.get("matakuliah")
+    semester = data.get("semester")
+    tahunakademik = data.get("tahunakademik")
     
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("INSERT INTO users (name, email) VALUES (%s, %s) RETURNING id", (name, email))
-    user_id = cur.fetchone()[0]
+    cur.execute('INSERT INTO krs (nim, "kode matakuliah", matakuliah, semester, tahunakademik) VALUES (%s, %s) RETURNING id', (nim, kode_matakuliah, matakuliah, semester, tahunakademik))
+    krs_id = cur.fetchone()[0]
     conn.commit()
     cur.close()
     conn.close()
     
-    return jsonify({"id": user_id, "name": name, "email": email}), 201
+    return jsonify({"meta" : { "code": 201, "message" : "success"}, "data" : {"id_krs" : krs_id, "nim" : nim, "kode matakuliah": kode_matakuliah, "matakuliah" : matakuliah, "semester" : semester, "tahunakademik" : tahunakademik}}), 201
 
 # GET - USER BY ID
-@app.route("/users/<int:user_id>", methods=["GET"])
-def get_user(user_id):
+@app.route("/krs/<int:krs_id>", methods=["GET"])
+def get_user(krs_id):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM users WHERE id = %s", (user_id,))
+    cur.execute('SELECT nim, "kode matakuliah", matakuliah, semester, tahunakademik FROM krs WHERE id_krs = %s', (krs_id,))
     user = cur.fetchone()
     cur.close()
     conn.close()
@@ -65,31 +68,34 @@ def get_user(user_id):
         return jsonify({"error": "User not found"}), 404
 
 # PUT - UPDATE USER
-@app.route("/users/<int:user_id>", methods=["PUT"])
-def update_user(user_id):
+@app.route("/krs/<int:krs_id>", methods=["PUT"])
+def update_user(krs_id):
     data = request.get_json()
-    name = data.get("name")
-    email = data.get("email")
+    nim = data.get("nim")
+    kode_matakuliah = data.get("kode matakuliah")
+    matakuliah = data.get("matakuliah")
+    semester = data.get("semester")
+    tahunakademik = data.get("tahunakademik")
     
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("UPDATE users SET name = %s, email = %s WHERE id = %s RETURNING id", (name, email, user_id))
+    cur.execute('UPDATE krs SET nim = %s, "kode matakuliah" = %s, matakuliah = %s, semester = %s, tahunakademik = %s WHERE id_krs = %s RETURNING id', (nim, kode_matakuliah, matakuliah, semester, tahunakademik))
     updated = cur.fetchone()
     conn.commit()
     cur.close()
     conn.close()
     
     if updated:
-        return jsonify({"id": user_id, "name": name, "email": email})
+        return jsonify({"data" : {"id_krs" : krs_id, "nim" : nim, "kode matakuliah": kode_matakuliah, "matakuliah" : matakuliah, "semester" : semester, "tahunakademik" : tahunakademik}})
     else:
         return jsonify({"error": "User not found"}), 404
 
 # DELETE - DELETE USER
-@app.route("/users/<int:user_id>", methods=["DELETE"])
-def delete_user(user_id):
+@app.route("/krs/<int:krs_id>", methods=["DELETE"])
+def delete_user(krs_id):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("DELETE FROM users WHERE id = %s RETURNING id", (user_id,))
+    cur.execute("DELETE FROM krs WHERE id_krs = %s RETURNING id", (krs_id,))
     deleted = cur.fetchone()
     conn.commit()
     cur.close()
