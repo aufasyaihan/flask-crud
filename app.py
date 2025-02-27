@@ -44,7 +44,7 @@ def add_user():
     
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute('INSERT INTO krs (nim, "kode matakuliah", matakuliah, semester, tahunakademik) VALUES (%s, %s) RETURNING id', (nim, kode_matakuliah, matakuliah, semester, tahunakademik))
+    cur.execute('INSERT INTO krs (nim, "kode matakuliah", matakuliah, semester, tahunakademik) VALUES (%s, %s, %s, %s, %s) RETURNING id', (nim, kode_matakuliah, matakuliah, semester, tahunakademik))
     krs_id = cur.fetchone()[0]
     conn.commit()
     cur.close()
