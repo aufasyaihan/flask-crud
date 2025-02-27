@@ -26,11 +26,11 @@ def get_db_connection():
 def get_krs():
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute('SELECT id_krs, nim, "kode matakuliah", matakuliah, semester, tahunakademik FROM krs ORDER BY id_krs ASC')
+    cur.execute('SELECT id_krs, nim, "kode matakuliah", matakuliah, semester, tahunakademik FROM krs ORDER BY id_krs ASC LIMIT 2000000')
     krs = cur.fetchall()
     cur.close()
     conn.close()
-    return jsonify([{"id_krs": u[0], "nim": u[1], "kode matakuliah": u[2], "matakuliah" : u[3], "semester" : u[4], "tahunakademik" : u[5]} for u in krs])
+    return jsonify({"meta" : { "code": 200, "message" : "Success"}, "data" : [{"id_krs": u[0], "nim": u[1], "kode matakuliah": u[2], "matakuliah" : u[3], "semester" : u[4], "tahunakademik" : u[5]} for u in krs]})
 
 # POST - ADD USER
 @app.route("/krs", methods=["POST"])
@@ -50,7 +50,7 @@ def add_user():
     cur.close()
     conn.close()
     
-    return jsonify({"meta" : { "code": 201, "message" : "success"}, "data" : {"id_krs" : krs_id, "nim" : nim, "kode matakuliah": kode_matakuliah, "matakuliah" : matakuliah, "semester" : semester, "tahunakademik" : tahunakademik}}), 201
+    return jsonify({"meta" : { "code": 201, "message" : "Success"}, "data" : {"id_krs" : krs_id, "nim" : nim, "kode matakuliah": kode_matakuliah, "matakuliah" : matakuliah, "semester" : semester, "tahunakademik" : tahunakademik}}), 201
 
 # GET - USER BY ID
 @app.route("/krs/<int:krs_id>", methods=["GET"])
@@ -63,7 +63,7 @@ def get_user(krs_id):
     conn.close()
     
     if user:
-        return jsonify({"id": user[0], "name": user[1], "email": user[2]})
+        return jsonify({"meta" : {"status": 200, "message" : "Success"},"data": {"id_krs": krs_id, "nim": user[0], "kode_matakuliah": user[1], "matakuliah": user[2], "semester": user[3], "tahunakademik": user[4]}})
     else:
         return jsonify({"error": "User not found"}), 404
 
