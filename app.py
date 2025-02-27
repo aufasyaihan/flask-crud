@@ -44,7 +44,7 @@ def add_user():
     
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute('INSERT INTO krs (nim, "kode matakuliah", matakuliah, semester, tahunakademik) VALUES (%s, %s, %s, %s, %s) RETURNING id', (nim, kode_matakuliah, matakuliah, semester, tahunakademik))
+    cur.execute('INSERT INTO krs (nim, "kode matakuliah", matakuliah, semester, tahunakademik) VALUES (%s, %s, %s, %s, %s) RETURNING id_krs', (nim, kode_matakuliah, matakuliah, semester, tahunakademik))
     krs_id = cur.fetchone()[0]
     conn.commit()
     cur.close()
@@ -65,7 +65,7 @@ def get_user(krs_id):
     if user:
         return jsonify({"meta" : {"status": 200, "message" : "Success"},"data": {"id_krs": krs_id, "nim": user[0], "kode_matakuliah": user[1], "matakuliah": user[2], "semester": user[3], "tahunakademik": user[4]}})
     else:
-        return jsonify({"error": "User not found"}), 404
+        return jsonify({"code" : 404,"message": "KRS not found"}), 404
 
 # PUT - UPDATE USER
 @app.route("/krs/<int:krs_id>", methods=["PUT"])
@@ -79,32 +79,32 @@ def update_user(krs_id):
     
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute('UPDATE krs SET nim = %s, "kode matakuliah" = %s, matakuliah = %s, semester = %s, tahunakademik = %s WHERE id_krs = %s RETURNING id', (nim, kode_matakuliah, matakuliah, semester, tahunakademik))
+    cur.execute('UPDATE krs SET nim = %s, "kode matakuliah" = %s, matakuliah = %s, semester = %s, tahunakademik = %s WHERE id_krs = %s RETURNING id_krs', (nim, kode_matakuliah, matakuliah, semester, tahunakademik, krs_id))
     updated = cur.fetchone()
     conn.commit()
     cur.close()
     conn.close()
     
     if updated:
-        return jsonify({"data" : {"id_krs" : krs_id, "nim" : nim, "kode matakuliah": kode_matakuliah, "matakuliah" : matakuliah, "semester" : semester, "tahunakademik" : tahunakademik}})
+        return jsonify({"meta": {"code": 204, "message": "Success"},"data" : {"id_krs" : krs_id, "nim" : nim, "kode matakuliah": kode_matakuliah, "matakuliah" : matakuliah, "semester" : semester, "tahunakademik" : tahunakademik}})
     else:
-        return jsonify({"error": "User not found"}), 404
+        return jsonify({"code": 404,"message": "KRS not found"}), 404
 
 # DELETE - DELETE USER
 @app.route("/krs/<int:krs_id>", methods=["DELETE"])
 def delete_user(krs_id):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("DELETE FROM krs WHERE id_krs = %s RETURNING id", (krs_id,))
+    cur.execute("DELETE FROM krs WHERE id_krs = %s RETURNING id_krs", (krs_id,))
     deleted = cur.fetchone()
     conn.commit()
     cur.close()
     conn.close()
     
     if deleted:
-        return jsonify({"message": "User deleted successfully"})
+        return jsonify({"code": 204,"message": "Success"})
     else:
-        return jsonify({"error": "User not found"}), 404
+        return jsonify({"code": 404,"message": "KRS not found"}), 404
 
 if __name__ == "__main__":
     app.run(debug=True)
